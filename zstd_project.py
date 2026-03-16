@@ -36,7 +36,7 @@ except ImportError:
 # ─────────────────────────────────────────────
 # Patrones a EXCLUIR siempre
 # ─────────────────────────────────────────────
-SOURCE_DIR = Path.home() / "Source"
+SOURCE_DIR = Path.home() / "Documents" / "source"
 
 BASE_EXCLUDE = {
     "__pycache__",
@@ -52,6 +52,7 @@ BASE_EXCLUDE = {
     "*.egg-info",
     ".DS_Store",
     "Thumbs.db",
+    "personal",
 }
 
 
@@ -309,7 +310,7 @@ def menu():
             if not input_file:
                 print("  ❌ No ingresaste un archivo.")
             else:
-                destino_default = here
+                destino_default = Path(input_file).parent
                 entrada = input(f"  Extraer en [{destino_default}]: ").strip()
                 output_dir = entrada if entrada else str(destino_default)
                 decompress(input_file, output_dir)

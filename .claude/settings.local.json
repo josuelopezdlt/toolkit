@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python zstd_project.py list \"../Source.tar.zst\")",
+      "Bash(python zstd_project.py decompress \"../Source.tar.zst\" --output \"../test_decompress_tmp\")"
+    ]
+  }
+}
