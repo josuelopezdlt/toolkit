@@ -16,6 +16,7 @@ Instalación:
 """
 
 import argparse
+import os
 import tarfile
 import sys
 import time
@@ -36,7 +37,12 @@ except ImportError:
 # ─────────────────────────────────────────────
 # Patrones a EXCLUIR siempre
 # ─────────────────────────────────────────────
-SOURCE_DIR = Path.home() / "Documents" / "source"
+# ─────────────────────────────────────────────
+# Directorio raíz de proyectos (configurable)
+# Prioridad: variable de entorno > valor por defecto
+# ─────────────────────────────────────────────
+_source_env = os.environ.get("ZSTD_SOURCE_DIR", "")
+SOURCE_DIR = Path(_source_env).expanduser().resolve() if _source_env else Path.home() / "Documents" / "source"
 
 BASE_EXCLUDE = {
     "__pycache__",
@@ -230,20 +236,26 @@ def list_contents(input_file: str, verbose: bool = False):
 # MENÚ INTERACTIVO
 # ─────────────────────────────────────────────
 def menu():
+    global SOURCE_DIR
     here = Path.cwd()
 
     while True:
+        src_label = str(SOURCE_DIR)
+        if len(src_label) > 33:
+            src_label = "..." + src_label[-32:]
         print()
         print("╔══════════════════════════════════════════════════════╗")
         print("║          🗜️  ZODIPLAST  —  Backup de Proyecto         ║")
         print("╠══════════════════════════════════════════════════════╣")
         print(f"║  Proyecto actual: {here.name:<35}║")
+        print(f"║  Source dir:      {src_label:<35}║")
         print("╠══════════════════════════════════════════════════════╣")
         print("║  1  ▶  Comprimir proyecto actual (nivel 9)           ║")
-        print("║  2  ▶  Comprimir todos los proyectos → ~/Source      ║")
-        print("║  3  ▶  Comprimir carpeta /source COMPLETA            ║")
+        print("║  2  ▶  Comprimir todos los proyectos → Source dir    ║")
+        print("║  3  ▶  Comprimir carpeta Source dir COMPLETA         ║")
         print("║  4  ▶  Descomprimir archivo .tar.zst                 ║")
         print("║  5  ▶  Ver contenido de archivo .tar.zst             ║")
+        print("║  6  ▶  Cambiar Source dir                            ║")
         print("║  0  ▶  Salir                                         ║")
         print("╚══════════════════════════════════════════════════════╝")
 
@@ -344,6 +356,20 @@ def menu():
             else:
                 verbose = input("  ¿Mostrar cada archivo? (s/N): ").strip().lower() == "s"
                 list_contents(input_file, verbose=verbose)
+            print()
+            input("  Presiona Enter para continuar...")
+
+        # ── CAMBIAR SOURCE DIR ────────────────────────────────
+        elif opcion == "6":
+            print(f"\n  Source dir actual: {SOURCE_DIR}")
+            nueva = input("  Nueva ruta (Enter para cancelar): ").strip()
+            if nueva:
+                nueva_path = Path(nueva).expanduser().resolve()
+                if nueva_path.exists():
+                    SOURCE_DIR = nueva_path
+                    print(f"  ✅ Source dir actualizado: {SOURCE_DIR}")
+                else:
+                    print(f"  ⚠️  La ruta no existe: {nueva_path}")
             print()
             input("  Presiona Enter para continuar...")
 
