@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # install.sh — macOS/Linux
+# Configura el entorno completo y registra el alias 'zstd' en el shell.
 set -e
 
 echo ""
 echo "══════════════════════════════════════════════"
-echo "   Instalador — zstd_project"
+echo "   Instalador — zstd_project  (setup inicial)"
 echo "══════════════════════════════════════════════"
 echo ""
 
@@ -34,12 +35,32 @@ else
     exit 1
 fi
 
-# ── 2. Agregar Python al PATH (si no está) ────
-PYDIR="$(dirname "$($PYTHON -c 'import sys; print(sys.executable)')")"
-SHELL_RC=""
+# ── 2. Crear / reutilizar entorno virtual ─────
+VENV_DIR="$SCRIPT_DIR/.venv"
 
+if [[ ! -d "$VENV_DIR" ]]; then
+    echo "  Creando entorno virtual en .venv ..."
+    $PYTHON -m venv "$VENV_DIR"
+    echo "[OK] Entorno virtual creado."
+else
+    echo "[OK] Entorno virtual ya existe."
+fi
+
+# Activar el venv para el resto del script
+# shellcheck source=/dev/null
+source "$VENV_DIR/bin/activate"
+PYTHON="$VENV_DIR/bin/python"
+
+# ── 3. Instalar dependencias en el venv ───────
+echo ""
+echo "  Instalando dependencias..."
+"$PYTHON" -m pip install --upgrade pip --quiet
+"$PYTHON" -m pip install -r "$SCRIPT_DIR/requirements.txt"
+echo "[OK] Dependencias instaladas en .venv"
+
+# ── 4. Registrar alias en el shell ────────────
+SHELL_RC=""
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS: detectar shell
     if [[ "$SHELL" == */zsh ]]; then
         SHELL_RC="$HOME/.zshrc"
     else
@@ -49,23 +70,29 @@ else
     SHELL_RC="$HOME/.bashrc"
 fi
 
-if [[ ":$PATH:" != *":$PYDIR:"* ]]; then
-    echo "export PATH=\"$PYDIR:\$PATH\"" >> "$SHELL_RC"
-    echo "[OK] Python agregado al PATH en $SHELL_RC"
+ALIAS_LINE="alias zstd='$VENV_DIR/bin/python $SCRIPT_DIR/zstd_project.py'"
+if ! grep -qF "$ALIAS_LINE" "$SHELL_RC" 2>/dev/null; then
+    {
+        echo ""
+        echo "# zstd_project — setup inicial"
+        echo "$ALIAS_LINE"
+    } >> "$SHELL_RC"
+    echo "[OK] Alias 'zstd' registrado en $SHELL_RC"
     echo "     Recarga con: source $SHELL_RC"
 else
-    echo "[OK] Python ya estaba en el PATH."
+    echo "[OK] Alias 'zstd' ya estaba registrado en $SHELL_RC"
 fi
 
-# ── 3. Instalar dependencias ──────────────────
-echo ""
-echo "  Instalando dependencias..."
-$PYTHON -m pip install --upgrade pip --quiet
-$PYTHON -m pip install -r "$SCRIPT_DIR/requirements.txt"
+# ── 5. Generar init.sh ejecutable ─────────────
+INIT_SCRIPT="$SCRIPT_DIR/init.sh"
+chmod +x "$INIT_SCRIPT" 2>/dev/null || true
 
 echo ""
 echo "══════════════════════════════════════════════"
-echo "   Listo. Ejecuta el script con:"
-echo "   python3 zstd_project.py"
+echo "   Listo. Formas de arrancar:"
+echo ""
+echo "   ./init.sh              → menú interactivo"
+echo "   source $SHELL_RC"
+echo "   zstd                   → alias global"
 echo "══════════════════════════════════════════════"
 echo ""

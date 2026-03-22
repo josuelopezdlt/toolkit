@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion
 chcp 65001 >nul
 echo.
 echo ══════════════════════════════════════════════
-echo    Instalador — zstd_project
+echo    Instalador — zstd_project  (setup inicial)
 echo ══════════════════════════════════════════════
 echo.
 
@@ -25,26 +25,22 @@ if errorlevel 1 (
 for /f "tokens=*" %%v in ('python --version 2^>^&1') do set PYVER=%%v
 echo [OK] %PYVER% encontrado.
 
-:: ── 2. Agregar Python al PATH del usuario (persistente) ──
-for /f "tokens=*" %%p in ('python -c "import sys, os; print(os.path.dirname(sys.executable))"') do set PYDIR=%%p
-for /f "tokens=*" %%p in ('python -c "import sys, os; print(os.path.join(os.path.dirname(sys.executable), \"Scripts\"))"') do set PYSCRIPTS=%%p
+:: ── 2. Crear / reutilizar entorno virtual ─────
+set VENV_DIR=%~dp0.venv
 
-:: Leer PATH actual del usuario
-for /f "skip=2 tokens=3*" %%a in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set CURRENT_PATH=%%a %%b
-
-echo !CURRENT_PATH! | findstr /i "%PYDIR%" >nul
-if errorlevel 1 (
-    setx PATH "%PYDIR%;%PYSCRIPTS%;%CURRENT_PATH%" >nul
-    echo [OK] Python agregado al PATH del usuario permanentemente.
+if not exist "%VENV_DIR%\" (
+    echo   Creando entorno virtual en .venv ...
+    python -m venv "%VENV_DIR%"
+    echo [OK] Entorno virtual creado.
 ) else (
-    echo [OK] Python ya estaba en el PATH del usuario.
+    echo [OK] Entorno virtual ya existe.
 )
 
-:: ── 3. Instalar dependencias ──────────────────
+:: ── 3. Instalar dependencias en el venv ───────
 echo.
-echo  Instalando dependencias...
-python -m pip install --upgrade pip --quiet
-python -m pip install -r "%~dp0requirements.txt"
+echo   Instalando dependencias...
+"%VENV_DIR%\Scripts\python.exe" -m pip install --upgrade pip --quiet
+"%VENV_DIR%\Scripts\python.exe" -m pip install -r "%~dp0requirements.txt"
 
 if errorlevel 1 (
     echo.
@@ -52,11 +48,20 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
+echo [OK] Dependencias instaladas en .venv
+
+:: ── 4. Registrar doskey / acceso directo ──────
+echo.
+echo   Registrando acceso en variables de usuario...
+setx ZSTD_PROJECT_DIR "%~dp0" >nul 2>&1
+echo [OK] Variable ZSTD_PROJECT_DIR registrada.
 
 echo.
 echo ══════════════════════════════════════════════
-echo    Listo. Ejecuta el script con:
-echo    python zstd_project.py
+echo    Listo. Formas de arrancar:
+echo.
+echo    init.bat               → menú interactivo
+echo    .venv\Scripts\python zstd_project.py
 echo ══════════════════════════════════════════════
 echo.
 pause

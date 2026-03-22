@@ -1,0 +1,38 @@
+# ── Entornos virtuales ──────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Python ───────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.spec
+
+# ── Cobertura / tests ────────────────────────
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Variables de entorno / secretos ─────────
+.env
+.env.*
+!.env.example
+
+# ── Editores ─────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ── Salida del proyecto ──────────────────────
+output/
+*.tar.zst
