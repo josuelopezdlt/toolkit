@@ -13,8 +13,7 @@ personal/
 ├── install.bat          # Setup inicial — Windows
 ├── init.sh              # Arranque rápido — macOS / Linux
 ├── init.bat             # Arranque rápido — Windows
-├── requirements.txt     # Dependencias Python
-└── erp_conexion/        # Scripts de conexión a Perseo ERP (HFSQL)
+└── requirements.txt     # Dependencias Python
 ```
 
 ---
@@ -76,25 +75,6 @@ También puedes cambiar el directorio en tiempo de ejecución con la **opción 6
 
 ---
 
-## erp_conexion
+## Credenciales y secretos
 
-Scripts para extraer datos del ERP Perseo vía ODBC (HFSQL).  
-Requiere un archivo `.env` con las credenciales del servidor HFSQL:
-
-```
-HFSQL_SERVER=192.168.x.x
-HFSQL_PORT=5588
-HFSQL_DATABASE=nombre_db
-HFSQL_USER=usuario
-HFSQL_PASSWORD=contraseña
-```
-
-Instalación de dependencias:
-```bash
-cd erp_conexion
-pip install -r requirements.txt
-```
-
-Flujo de trabajo:
-1. `explorar_schema.py` — descubrir tablas y columnas (ejecutar una vez)
-2. `consultar.py` — extraer ventas por periodo a Excel
+Cualquier token o clave SSH que este proyecto pueda necesitar en el futuro **debe obtenerse exclusivamente desde [1Password](https://1password.com)**, nunca desde archivos locales (`.env`, `~/.ssh`, etc.).

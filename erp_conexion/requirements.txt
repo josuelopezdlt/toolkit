@@ -1,3 +1,0 @@
-pyodbc
-polars[excel]
-python-dotenv
