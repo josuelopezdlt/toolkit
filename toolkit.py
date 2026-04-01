@@ -17,6 +17,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent
 ZSTD_SCRIPT = REPO_ROOT / "zstd_project.py"
+CLAUDE_QUOTA_SCRIPT = REPO_ROOT / "claude_quota.py"
 
 
 def _print_header(title: str) -> None:
@@ -42,6 +43,13 @@ def command_zstd_passthrough(args: list[str]) -> int:
     return _run([sys.executable, str(ZSTD_SCRIPT), *args], check=False)
 
 
+def command_claude_passthrough(args: list[str]) -> int:
+    if not CLAUDE_QUOTA_SCRIPT.exists():
+        print(f"[ERROR] No se encontro {CLAUDE_QUOTA_SCRIPT}")
+        return 1
+    return _run([sys.executable, str(CLAUDE_QUOTA_SCRIPT), *args], check=False)
+
+
 def menu() -> int:
     while True:
         print()
@@ -49,6 +57,7 @@ def menu() -> int:
         print("║        TOOLKIT — Utilidades pequenas aisladas       ║")
         print("╠══════════════════════════════════════════════════════╣")
         print("║  1  ▶  zstd (comprimir / descomprimir)              ║")
+        print("║  2  ▶  claude (cuota de uso)                        ║")
         print("║  0  ▶  Salir                                        ║")
         print("╚══════════════════════════════════════════════════════╝")
 
@@ -56,6 +65,8 @@ def menu() -> int:
 
         if option == "1":
             command_zstd_passthrough([])
+        elif option == "2":
+            command_claude_passthrough([])
         elif option == "0":
             return 0
         else:
@@ -73,6 +84,9 @@ def build_parser() -> argparse.ArgumentParser:
     zstd = sub.add_parser("zstd", help="Comprimir / descomprimir con zstd")
     zstd.add_argument("zstd_args", nargs=argparse.REMAINDER)
 
+    claude = sub.add_parser("claude", help="Tracker de cuota de uso de Claude")
+    claude.add_argument("claude_args", nargs=argparse.REMAINDER)
+
     return parser
 
 
@@ -85,6 +99,9 @@ def main() -> int:
 
     if args.command == "zstd":
         return command_zstd_passthrough(args.zstd_args)
+
+    if args.command == "claude":
+        return command_claude_passthrough(args.claude_args)
 
     parser.print_help()
     return 1
