@@ -4,5 +4,12 @@
   "terminal.integrated.env.windows": {
     "PYTHONHOME": null,
     "PYTHONPATH": null
-  }
+  },
+  "python-envs.pythonProjects": [
+    {
+      "path": ".",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ]
 }
