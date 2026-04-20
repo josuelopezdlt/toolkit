@@ -1,7 +1,7 @@
 import polars as pl
 from pathlib import Path
 
-SOURCE_DIR = Path(r"C:\Users\JosueLopezDeLaTorre\Desktop\anthropic\ventas 2025")
+SOURCE_DIR = Path(r"C:\Users\josue\Desktop\anthropic\ventas 2025")
 OUTPUT_FILE = SOURCE_DIR / "ventas_2025_unificado.csv"
 
 
